@@ -6,8 +6,10 @@ from configLoader import config
 
 from uipathClient import get_uipath_orchestrator
 
-RF_DICT = config.get_rpa_filename_mapping()
+TRIGGER_FOLDER_PATH = config.get_trigger_folder_path()
 
+
+# ==================== API触发相关函数 ====================
 
 def trigger_rpa_job(filename):
     """
@@ -87,3 +89,29 @@ def wait_rpa_job_completion(filename):
     except Exception as e:
         sys.stderr.write(f"等待 RPA 完成时发生错误: {str(e)}")
         return False
+
+
+# ==================== 文件触发相关函数 ====================
+
+def create_file(filename):
+    """
+    创建文件触发RPA
+    """
+    if not os.path.exists(TRIGGER_FOLDER_PATH):
+        print("触发文件夹不存在")
+        return
+
+    file_path = os.path.join(TRIGGER_FOLDER_PATH, filename)
+    open(file_path, 'w').close()
+    print(f"创建文件 -- {filename}, 触发 RPA!")
+
+
+def wait_delete_file(filename):
+    """
+    等待文件被删除
+    """
+    file_path = os.path.join(TRIGGER_FOLDER_PATH, filename)
+    while os.path.exists(file_path):
+        time.sleep(10)
+        print("等待 RPA 完成，10秒后重试!")
+    print("RPA 执行完成!")

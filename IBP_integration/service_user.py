@@ -10,7 +10,7 @@ from RpaTools import *
 class CenterServer:
     MAX_NETWORK_CONNECTIONS = 5
 
-    def __init__(self, host="0.0.0.0", port=55339):
+    def __init__(self, host="0.0.0.0", port=55338):
         self.host = host
         self.port = port
         self.clients = {}
@@ -71,8 +71,10 @@ class CenterServer:
                             rpa_data["taskId"] = task_id
                             print(f"获取RPA数据 -- {key} -- 数据内容: {rpa_data}")
 
-                            self.send_work_item(rpa_data)
-                            self.work_items[key] = (task_id, 1)
+                            # 尝试发送任务
+                            if self.send_work_item(rpa_data):
+                                # 只有发送成功才标记为已处理
+                                self.work_items[key] = (task_id, 1)
 
                 need_sleep = False
             else:
@@ -82,10 +84,16 @@ class CenterServer:
         username = data["userName"]
         if username in self.clients:
             json_data = json.dumps(data)
-            self.clients[username].sendall(json_data.encode("utf-8"))
-            print(f"已发送任务 {data['taskName']} 给用户 {username}")
+            try:
+                self.clients[username].sendall(json_data.encode("utf-8"))
+                print(f"已发送任务 {data['taskName']} 给用户 {username}")
+                return True
+            except Exception as e:
+                print(f"发送数据失败：{e}")
+                return False
         else:
             print("用户对应的RPA客户端不存在！")
+            return False
 
     # 网络通信线程
     def communicate_client(self, username):

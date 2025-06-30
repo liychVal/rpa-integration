@@ -1,7 +1,7 @@
 {
   "server": {
     "host": "127.0.0.1",
-    "port": 55339,
+    "port": 55338,
     "max_connections": 5,
     "client_host": "127.0.0.1"
   },
@@ -26,6 +26,8 @@
     "rpa_check_interval": 2
   },
   "uipath": {
+    "method": "api",
+    "folder_path": "E:\\python_file\\2025\\rpa-integration\\trigger",
     "organization": "nilketojip",
     "tenant": "DefaultTenant",
     "pat": "rt_889B8857FF5B18B6ADB3D0F04E96972A9FFAA0D45DCBA96256D9C16A9284213E-1",
@@ -37,7 +39,12 @@
     "max_attempts": 60
   },
   "rpa_filename_mapping": {
+    "rpaTime": "getTIme.txt",
+    "rpaTime2": "getTIme2.txt"
+  },
+  "rpa_processid_mapping": {
     "rpaTime": "388472d1-0bd1-459c-aff0-ea868d970e57",
-    "rpaTime2": "4eee85d0-51f4-4a07-8f79-94e88ee5811f"
+    "rpaTime2": "4eee85d0-51f4-4a07-8f79-94e88ee5811f",
+    "lll": "lll"
   }
 }

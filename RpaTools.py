@@ -5,6 +5,10 @@ from bpmApiClient import create_bpm_client
 
 # 全局BMP客户端实例
 bpm_client = None
+RF_DICT = config.get_rpa_filename_mapping()
+RP_DICT = config.get_rpa_processid_mapping()
+TRIGGER_FOLDER_PATH = config.get_trigger_folder_path()
+
 
 def init_bpm_client():
     """初始化BPM客户端"""
@@ -71,16 +75,57 @@ def get_work_item_data():# 添加一个判断work item的名字是否出现在ma
         sys.stderr.write(f"获取工作项数据失败：{str(e)}\n")
         return {}
 
-
+## 触发RPA
 def trigger_rpa(data):
+    """
+    根据配置项决定使用API触发还是文件触发
+    """
     try:
         taskname = data["taskName"]
-        taskID = RF_DICT.get(taskname, '') # 使用 taskID 而非 filename
-        if taskID:
-            trigger_rpa_job(taskID)
-            wait_rpa_job_completion(taskID)
+        filename = RF_DICT.get(taskname, '')
+        taskID = RP_DICT.get(taskname, '')
+
+        if not taskID:
+            print(f"未找到任务 {taskname} 对应的配置")
+            return
+
+        # 获取触发方式配置
+        uipath_method = config.get_uipath_method()
+
+        if uipath_method == "api":
+            print("使用API方式触发RPA")
+            trigger_rpa_api(taskID)
+        elif uipath_method == "file":
+            print("使用文件方式触发RPA")
+            trigger_rpa_file(filename)
+        else:
+            print(f"未知的触发方式: {uipath_method}，默认使用API方式")
+            trigger_rpa_api(taskID)
+
     except Exception as e:
         sys.stderr.write(f"触发RPA任务失败：{str(e)}\n")
+
+
+def trigger_rpa_api(taskID):
+    """
+    使用API方式触发RPA
+    """
+    try:
+        trigger_rpa_job(taskID)
+        wait_rpa_job_completion(taskID)
+    except Exception as e:
+        sys.stderr.write(f"API触发RPA任务失败：{str(e)}\n")
+
+
+def trigger_rpa_file(filename):
+    """
+    使用文件方式触发RPA
+    """
+    try:
+        create_file(filename)
+        wait_delete_file(filename)
+    except Exception as e:
+        sys.stderr.write(f"文件触发RPA任务失败：{str(e)}\n")
 
 def finish_work_item(task_data=None):
     client = get_bpm_client()

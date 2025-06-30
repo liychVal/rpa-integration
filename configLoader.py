@@ -63,10 +63,13 @@ class ConfigLoader:
         """获取客户端主机地址"""
         return self.get('server.client_host', '127.0.0.1')
 
-    # === RPA文件名映射 ===
+    # === RPA映射 ===
     def get_rpa_filename_mapping(self) -> Dict[str, str]:
         """获取RPA文件名映射"""
         return self.get('rpa_filename_mapping', {})
+    def get_rpa_processid_mapping(self) ->Dict[str, str]:
+        """获取RPA进程id映射"""
+        return self.get('rpa_processid_mapping',{})
 
     # === Superman项目配置 ===
     def get_superman_items(self) -> Dict[str, str]:
@@ -110,6 +113,10 @@ class ConfigLoader:
         return self.get('timing.rpa_check_interval', 2)
 
     # === uipath调用 ===
+    def get_trigger_folder_path(self)->str:
+        return self.get('uipath.folder_path','')
+    def get_uipath_method(self) -> str:
+        return self.get('uipath.method', 'file')
     def get_uipath_organization(self) -> str:
         return self.get('uipath.organization', 'your-organization')
 

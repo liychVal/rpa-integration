@@ -96,7 +96,11 @@ class RPAIntegrationUI:
             self.log_output.controls.append(log_entry)
             if len(self.log_output.controls) > 100:
                 self.log_output.controls.pop(0)
-            self.log_output.scroll_to(offset=-1)
+            try:
+                if self.page and hasattr(self.log_output, 'page') and self.log_output.page: # 避免保存配置时错误
+                    self.log_output.scroll_to(offset=-1)
+            except:
+                pass
 
         # 2. 持久化到日志文件
         try:
@@ -161,7 +165,7 @@ class RPAIntegrationUI:
             value=self.config_data["camunda8"]["password"],
             password=True,
             can_reveal_password=True,
-            on_change=lambda e: self.update_config_value("camunda8.api_key", e.control.value)
+            on_change=lambda e: self.update_config_value("camunda8.password", e.control.value)
         ))
 
         # Camunda7配置
@@ -215,6 +219,21 @@ class RPAIntegrationUI:
         # UiPath配置
         config_fields.append(ft.Divider(height=20))
         config_fields.append(ft.Text("UiPath配置", size=18, weight=ft.FontWeight.BOLD, color=ft.colors.BLUE))
+
+        # 新增method字段
+        config_fields.append(ft.TextField(
+            label="方法",
+            value=self.config_data["uipath"]["method"],
+            on_change=lambda e: self.update_config_value("uipath.method", e.control.value)
+        ))
+
+        # 新增folder_path字段
+        config_fields.append(ft.TextField(
+            label="文件夹路径",
+            value=self.config_data["uipath"]["folder_path"],
+            on_change=lambda e: self.update_config_value("uipath.folder_path", e.control.value)
+        ))
+
         config_fields.append(ft.TextField(
             label="组织",
             value=self.config_data["uipath"]["organization"],
@@ -266,6 +285,12 @@ class RPAIntegrationUI:
         config_fields.append(ft.Text("RPA文件名映射", size=18, weight=ft.FontWeight.BOLD, color=ft.colors.BLUE))
         rpa_mapping_section = self.create_keyvalue_section("rpa_filename_mapping", "RPA文件名映射")
         config_fields.append(rpa_mapping_section)
+
+        # 新增RPA进程ID映射配置 - 动态键值对
+        config_fields.append(ft.Divider(height=20))
+        config_fields.append(ft.Text("RPA进程ID映射", size=18, weight=ft.FontWeight.BOLD, color=ft.colors.BLUE))
+        rpa_processid_mapping_section = self.create_keyvalue_section("rpa_processid_mapping", "RPA进程ID映射")
+        config_fields.append(rpa_processid_mapping_section)
 
         # 保存按钮
         config_fields.append(ft.Divider(height=30))
